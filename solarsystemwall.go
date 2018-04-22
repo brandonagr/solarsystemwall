@@ -1,7 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	solar "github.com/brandonagr/solarsystemwall/solar"
+)
 
 func main() {
-	fmt.Printf("Hello, world.\n")
+
+	system := &solar.SolarSystem{}
+	t := solar.NewCircle(system)
+
+	fmt.Printf("Hello, world.\n %v", t)
 }
