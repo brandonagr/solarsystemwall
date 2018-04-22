@@ -31,7 +31,7 @@ type DrawCircle struct {
 var _ Drawable = &DrawCircle{}
 
 // NewCircle Construct a circle
-func NewCircle(system *SolarSystem) *DrawCircle {
+func NewCircle(solarSystem *System) *DrawCircle {
 
 	return &DrawCircle{
 		position: XYPosition{0, 0},

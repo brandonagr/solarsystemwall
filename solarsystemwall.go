@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	system := &solar.SolarSystem{}
+	system := &solar.System{}
 	t := solar.NewCircle(system)
 
 	fmt.Printf("Hello, world.\n %v", t)
