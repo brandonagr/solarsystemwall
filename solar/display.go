@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// A display that can render the field
+// Display that can render the field
 type Display interface {
 	Render(*System)
 }
@@ -20,7 +20,7 @@ type XYPositionColor struct {
 	color    RGBA
 }
 
-// Web display
+// WebDisplay info needed to render to an image
 type WebDisplay struct {
 	colorSamples []XYPositionColor
 	width        int
@@ -35,7 +35,7 @@ type WebDisplay struct {
 
 var testWebDisplay Display = &WebDisplay{}
 
-// Create a new WebDisplay
+// NewWebDisplay create a new WebDisplay
 func NewWebDisplay(solarSystem *System, width, height int) *WebDisplay {
 
 	min := XYPosition{10000, 10000}
@@ -87,7 +87,7 @@ func (display *WebDisplay) LaunchWebServer() {
 	http.HandleFunc("/image/", func(w http.ResponseWriter, r *http.Request) { display.imageHandler(w, r) })
 
 	log.Print("Server listening on 8080")
-	http.ListenAndServe(":8080", nil)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 // Serve static html page
@@ -127,12 +127,12 @@ func (display *WebDisplay) imageHandler(w http.ResponseWriter, r *http.Request) 
 	// }
 
 	png.Encode(w, image)
-	log.Print("Generated", r.URL, " in", time.Since(startTime))
+	log.Print("Generated", r.URL, " in ", time.Since(startTime))
 }
 
 // based on a pull request found at http://forums.adafruit.com/viewtopic.php?f=47&t=26591
 // is basically precomputing x = pow(i / 255, 3.0) * 127
-var gammaCorrectionLookup [256]uint8 = [256]uint8{
+var gammaCorrectionLookup = [256]uint8{
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2,
