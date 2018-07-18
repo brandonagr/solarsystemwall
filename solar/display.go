@@ -3,8 +3,10 @@ package solar
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"image/png"
 	"log"
+	"math"
 	"net/http"
 	"time"
 )
@@ -26,6 +28,8 @@ type WebDisplay struct {
 	width        int
 	height       int
 
+	solarSystem *System
+
 	// scale to fit all the planets
 	scale XYPosition
 
@@ -38,37 +42,38 @@ var testWebDisplay Display = &WebDisplay{}
 // NewWebDisplay create a new WebDisplay
 func NewWebDisplay(solarSystem *System, width, height int) *WebDisplay {
 
-	min := XYPosition{10000, 10000}
-	max := XYPosition{0, 0}
+	// min := XYPosition{10000, 10000}
+	// max := XYPosition{0, 0}
 
-	for _, planet := range solarSystem.planets {
-		// use 2 * radius just to give some extra spacing around edges
-		planetMin := XYPosition{planet.position.X - 2*planet.radius, planet.position.Y - 2*planet.radius}
-		planetMax := XYPosition{planet.position.X + 2*planet.radius, planet.position.Y + 2*planet.radius}
+	// for _, planet := range solarSystem.planets {
+	// 	// use 2 * radius just to give some extra spacing around edges
+	// 	planetMin := XYPosition{planet.position.X - 2*planet.radius, planet.position.Y - 2*planet.radius}
+	// 	planetMax := XYPosition{planet.position.X + 2*planet.radius, planet.position.Y + 2*planet.radius}
 
-		if planetMin.X < min.X {
-			min.X = planetMin.X
-		}
-		if planetMin.Y < min.Y {
-			min.Y = planetMin.Y
-		}
-		if planetMax.X > max.X {
-			max.X = planetMax.X
-		}
-		if planetMax.Y > max.Y {
-			max.Y = planetMax.Y
-		}
-	}
+	// 	if planetMin.X < min.X {
+	// 		min.X = planetMin.X
+	// 	}
+	// 	if planetMin.Y < min.Y {
+	// 		min.Y = planetMin.Y
+	// 	}
+	// 	if planetMax.X > max.X {
+	// 		max.X = planetMax.X
+	// 	}
+	// 	if planetMax.Y > max.Y {
+	// 		max.Y = planetMax.Y
+	// 	}
+	// }
 
-	scaleX := (max.X - min.X) / float64(width)
-	scaleY := (max.Y - min.Y) / float64(height)
+	// scaleX := (max.X - min.X) / float64(width)
+	// scaleY := (max.Y - min.Y) / float64(height)
 
 	display := &WebDisplay{
 		colorSamples: make([]XYPositionColor, solarSystem.LedCount()),
-		width:        width,
-		height:       height,
-		scale:        XYPosition{scaleX, scaleY},
-		offset:       XYPosition{-min.X, -min.Y},
+		width:        width * 10,
+		height:       height * 10,
+		scale:        XYPosition{10, 10},
+		offset:       XYPosition{0, 0},
+		solarSystem:  solarSystem,
 	}
 
 	go display.LaunchWebServer()
@@ -102,7 +107,7 @@ func htmlPageHandler(w http.ResponseWriter, r *http.Request) {
         }
         setTimeout(reloadpic, 100)
 	--></script></head>
-	<body><img id="gameBoard" src="image/test.png" height="42" width="1024"/></body>
+	<body><img id="gameBoard" src="image/test.png" height="910" width="1360"/></body>
 </html>`)
 
 }
@@ -116,6 +121,22 @@ func (display *WebDisplay) imageHandler(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Cache-control", "max-age=0, must-revalidate, no-store")
 
 	image := image.NewRGBA(image.Rect(0, 0, display.width, display.height))
+
+	for planetIndex := 0; planetIndex < PlanetCount; planetIndex++ {
+		planet := display.solarSystem.planets[planetIndex]
+		pos := planet.position
+
+		pos.X = pos.X * display.scale.X
+		pos.Y = pos.Y * display.scale.Y
+
+		radiansPerLed := (2.0 * math.Pi) / float64(planet.ledCount)
+		for led := 0; led < planet.ledCount; led++ {
+			ledX := pos.X + math.Cos(float64(led)*radiansPerLed)*planet.radius*0.5
+			ledY := pos.Y + math.Sin(float64(led)*radiansPerLed)*planet.radius*0.5
+
+			image.Set(int(ledX), int(ledY), color.RGBA{0, 0, 0, 255})
+		}
+	}
 
 	// for dataIndex := 0; dataIndex < width; dataIndex++ {
 

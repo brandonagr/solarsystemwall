@@ -8,12 +8,12 @@ import (
 
 func main() {
 
-	system := &solar.System{}
-	t := solar.NewCircle(system)
+	system := solar.DefaultSystem()
 
-	fmt.Printf("Hello, world.\n %v", t)
+	//t := solar.NewCircle(system)
+	//fmt.Printf("Hello, world.\n %v", t)
 
-	solar.NewWebDisplay(system, 640, 240)
+	solar.NewWebDisplay(system, 136, 91)
 
 	// keep running
 	fmt.Scanln()

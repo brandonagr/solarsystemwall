@@ -56,6 +56,23 @@ type System struct {
 	drawables *list.List
 }
 
+// DefaultSystem create a solar system with all the data for the planets initialized
+func DefaultSystem() *System {
+	system := &System{}
+
+	system.planets[Sun] = Planet{XYPosition{9, 11}, 6, 27, 0}
+	system.planets[Mercury] = Planet{XYPosition{7, 25}, 4, 17, 0}
+	system.planets[Venus] = Planet{XYPosition{30, 30}, 4, 17, 0}
+	system.planets[Earth] = Planet{XYPosition{40, 10}, 4, 17, 0}
+	system.planets[Mars] = Planet{XYPosition{60, 19}, 4, 17, 0}
+	system.planets[Jupiter] = Planet{XYPosition{78, 30}, 6, 27, 0}
+	system.planets[Saturn] = Planet{XYPosition{94, 14}, 6, 27, 0}
+	system.planets[Uranus] = Planet{XYPosition{106, 45}, 6, 27, 0}
+	system.planets[Neptune] = Planet{XYPosition{126, 25}, 4, 17, 0}
+
+	return system
+}
+
 // LedCount return total number of LEDs that exist in system
 func (solarSystem *System) LedCount() int {
 	count := 0
