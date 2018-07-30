@@ -7,6 +7,7 @@ import (
 	"image/png"
 	"log"
 	"math"
+	"math/rand"
 	"net/http"
 	"time"
 )
@@ -35,6 +36,9 @@ type WebDisplay struct {
 
 	// offset applied to location of each planet
 	offset XYPosition
+
+	// image that is rendered to
+	image *image.RGBA
 }
 
 var testWebDisplay Display = &WebDisplay{}
@@ -69,11 +73,12 @@ func NewWebDisplay(solarSystem *System, width, height int) *WebDisplay {
 
 	display := &WebDisplay{
 		colorSamples: make([]XYPositionColor, solarSystem.LedCount()),
-		width:        width * 10,
-		height:       height * 10,
-		scale:        XYPosition{10, 10},
+		width:        width * 5,
+		height:       height * 5,
+		scale:        XYPosition{5, 5},
 		offset:       XYPosition{0, 0},
 		solarSystem:  solarSystem,
+		image:        image.NewRGBA(image.Rect(0, 0, width*5, height*5)),
 	}
 
 	go display.LaunchWebServer()
@@ -103,9 +108,9 @@ func htmlPageHandler(w http.ResponseWriter, r *http.Request) {
 		function reloadpic()
         {
 			document.images["gameBoard"].src = "image/test.png";
-			setTimeout(reloadpic, 100);
+			setTimeout(reloadpic, 400);
         }
-        setTimeout(reloadpic, 100)
+        setTimeout(reloadpic, 400)
 	--></script></head>
 	<body><img id="gameBoard" src="image/test.png" height="910" width="1360"/></body>
 </html>`)
@@ -131,14 +136,14 @@ func (display *WebDisplay) imageHandler(w http.ResponseWriter, r *http.Request) 
 
 		radiansPerLed := (2.0 * math.Pi) / float64(planet.ledCount)
 		for led := 0; led < planet.ledCount; led++ {
-			ledX := pos.X + math.Cos(float64(led)*radiansPerLed)*planet.radius*0.5
-			ledY := pos.Y + math.Sin(float64(led)*radiansPerLed)*planet.radius*0.5
+			ledX := pos.X + math.Cos(float64(led)*radiansPerLed)*planet.radius*2
+			ledY := pos.Y + math.Sin(float64(led)*radiansPerLed)*planet.radius*2
 
-			image.Set(int(ledX), int(ledY), color.RGBA{0, 0, 0, 255})
+			image.Set(int(ledX), int(ledY), color.RGBA{uint8(rand.Intn(256)), uint8(rand.Intn(256)), uint8(rand.Intn(256)), 255})
 		}
 	}
 
-	// for dataIndex := 0; dataIndex < width; dataIndex++ {
+	// for dataIndex := 0; dataIndex < display.width; dataIndex++ {
 
 	// 	for y := 0; y < height; y++ {
 	// 		displayedColor := color.RGBA(data[dataIndex])
@@ -147,7 +152,8 @@ func (display *WebDisplay) imageHandler(w http.ResponseWriter, r *http.Request) 
 	// 	}
 	// }
 
-	png.Encode(w, image)
+	encoder := &png.Encoder{CompressionLevel: png.NoCompression}
+	encoder.Encode(w, image)
 	log.Print("Generated", r.URL, " in ", time.Since(startTime))
 }
 
