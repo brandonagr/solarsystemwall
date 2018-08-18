@@ -1,8 +1,8 @@
 package solar
 
 import (
-	"fmt"
 	"image/color"
+	"math"
 
 	"github.com/golang/geo/r2"
 )
@@ -46,8 +46,8 @@ func NewLine(solarSystem *System) *DrawLine {
 		traverseTime:    8.0,
 		currentPosition: r2.Point{X: 0, Y: 0},
 		lineDirection:   r2.Point{X: 1, Y: 0},
-		lineWidth:       6.0,
-		color:           color.RGBA{R: 255, G: 128, B: 0, A: 255},
+		lineWidth:       12.0,
+		color:           color.RGBA{R: 255, G: 255, B: 0, A: 255},
 		zindex:          1,
 	}
 }
@@ -68,14 +68,16 @@ func (line *DrawLine) ColorAt(position r2.Point, baseColor RGBA) (color RGBA) {
 	distance = distance / line.lineWidth
 	color = RGBA{line.color.R, line.color.G, line.color.B, uint8((1.0 - distance) * 255.0)}
 
-	fmt.Println(baseColor, color, position, distance, line.currentPosition)
+	result := color.BlendWith(baseColor)
 
-	return color.BlendWith(baseColor)
+	//fmt.Println(baseColor, color, result, position, distance, line.currentPosition)
+
+	return result
 }
 
 // Computer distance from point to line https://brilliant.org/wiki/dot-product-distance-between-point-and-a-line/
 func (line *DrawLine) distanceToPoint(position r2.Point) float64 {
-	return position.Sub(line.currentPosition).Dot(line.lineDirection)
+	return math.Abs(position.Sub(line.currentPosition).Dot(line.lineDirection))
 }
 
 // ZIndex of the circle
@@ -89,7 +91,7 @@ func (line *DrawLine) Animate(dt float64) bool {
 	distance := line.currentPosition.Sub(line.startPosition).Norm()
 
 	distance += (totalDistance / line.traverseTime) * dt
-	fmt.Println(distance, totalDistance, line.traverseTime)
+	//fmt.Println(distance, totalDistance, line.traverseTime)
 	if distance > totalDistance {
 		distance = 0.0
 	}
@@ -97,7 +99,7 @@ func (line *DrawLine) Animate(dt float64) bool {
 	moveDir := line.endPosition.Sub(line.startPosition).Normalize()
 	line.currentPosition = moveDir.Mul(distance).Add(line.startPosition)
 
-	fmt.Println("Animated to ", line.currentPosition, dt)
+	//fmt.Println("Animated to ", line.currentPosition, dt)
 
 	return true
 }

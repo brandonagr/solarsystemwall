@@ -2,6 +2,7 @@ package solar
 
 import (
 	"container/list"
+	"image/color"
 	"math"
 
 	"github.com/golang/geo/r2"
@@ -75,7 +76,38 @@ func DefaultSystem() *System {
 
 	system.drawables = list.New()
 
-	system.drawables.PushFront(NewLine(system))
+	system.drawables.PushFront(&DrawLine{
+		startPosition:   r2.Point{X: 0, Y: 0},
+		endPosition:     r2.Point{X: 130, Y: 50},
+		traverseTime:    15.0,
+		currentPosition: r2.Point{X: 0, Y: 0},
+		lineDirection:   r2.Point{X: .707, Y: .707},
+		lineWidth:       24.0,
+		color:           color.RGBA{R: 255, G: 255, B: 0, A: 128},
+		zindex:          2,
+	})
+
+	system.drawables.PushFront(&DrawLine{
+		startPosition:   r2.Point{X: 0, Y: 0},
+		endPosition:     r2.Point{X: 130, Y: 0},
+		traverseTime:    10.0,
+		currentPosition: r2.Point{X: 0, Y: 0},
+		lineDirection:   r2.Point{X: 1, Y: 0},
+		lineWidth:       18.0,
+		color:           color.RGBA{R: 255, G: 0, B: 0, A: 128},
+		zindex:          1,
+	})
+
+	system.drawables.PushFront(&DrawLine{
+		startPosition:   r2.Point{X: 0, Y: 0},
+		endPosition:     r2.Point{X: 0, Y: 50},
+		traverseTime:    12.0,
+		currentPosition: r2.Point{X: 0, Y: 0},
+		lineDirection:   r2.Point{X: 0, Y: 1},
+		lineWidth:       12.0,
+		color:           color.RGBA{R: 0, G: 255, B: 0, A: 128},
+		zindex:          1,
+	})
 
 	return system
 }
@@ -95,7 +127,7 @@ func (solarSystem *System) LedPosition(planetI PlanetIndex, ledIndex int) r2.Poi
 	planet := solarSystem.planets[planetI]
 	radiansPerLed := (2.0 * math.Pi) / float64(planet.ledCount)
 
-	ledOffset := r2.Point{X: math.Cos(float64(ledIndex)*radiansPerLed) * planet.radius * 2, Y: math.Sin(float64(ledIndex)*radiansPerLed) * planet.radius * 2}
+	ledOffset := r2.Point{X: math.Cos(float64(ledIndex)*radiansPerLed) * planet.radius, Y: math.Sin(float64(ledIndex)*radiansPerLed) * planet.radius}
 
 	return ledOffset.Add(planet.position)
 }

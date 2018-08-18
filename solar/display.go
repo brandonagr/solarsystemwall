@@ -96,6 +96,16 @@ func (display *WebDisplay) Render(solarSystem *System) {
 		planet := display.solarSystem.planets[planetIndex]
 		//pos := planet.position
 
+		// initialize default color for each led position
+		for led := 0; led < planet.ledCount; led++ {
+			ledPosition := solarSystem.LedPosition(PlanetIndex(planetIndex), led)
+
+			imageX := int(ledPosition.X * display.scale.X)
+			imageY := int(ledPosition.Y * display.scale.Y)
+
+			image.SetRGBA(imageX, imageY, color.RGBA{R: 0, G: 0, B: 0, A: 255})
+		}
+
 		// loop through every drawable object
 		for curElement := solarSystem.drawables.Front(); curElement != nil; curElement = curElement.Next() {
 			drawable := curElement.Value.(Drawable)
@@ -113,11 +123,10 @@ func (display *WebDisplay) Render(solarSystem *System) {
 				imageX := int(ledPosition.X * display.scale.X)
 				imageY := int(ledPosition.Y * display.scale.Y)
 
-				image.SetRGBA(imageX, imageY, color.RGBA{R: 0, G: 0, B: 255, A: 255})
-
 				curColor := RGBA(image.RGBAAt(imageX, imageY))
 				curColor = drawable.ColorAt(ledPosition, RGBA(curColor))
 
+				curColor.A = 255 // for rendering to image dont want to blend to nothing
 				image.SetRGBA(imageX, imageY, color.RGBA(curColor))
 			}
 		}
@@ -154,7 +163,7 @@ func htmlPageHandler(w http.ResponseWriter, r *http.Request) {
         }
         setTimeout(reloadpic, 400)
 	--></script></head>
-	<body><img id="gameBoard" src="image/test.png" height="910" width="1360"/></body>
+	<body bgcolor="#888888"><img id="gameBoard" src="image/test.png" height="910" width="1360"/></body>
 </html>`)
 
 }
