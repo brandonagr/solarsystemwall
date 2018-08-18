@@ -1,20 +1,30 @@
 package main
 
 import (
-	"fmt"
+	"time"
 
 	solar "github.com/brandonagr/solarsystemwall/solar"
 )
 
 func main() {
-
 	system := solar.DefaultSystem()
+	display := solar.NewWebDisplay(system, 136, 91)
 
-	//t := solar.NewCircle(system)
-	//fmt.Printf("Hello, world.\n %v", t)
+	runAnimationLoopForever(system, display)
+}
 
-	solar.NewWebDisplay(system, 136, 91)
+func runAnimationLoopForever(system *solar.System, display *solar.WebDisplay) {
+	curTime := time.Now()
+	prevTime := curTime
 
-	// keep running
-	fmt.Scanln()
+	ticks := time.NewTicker(time.Duration(100.0) * time.Millisecond) // 10 hz
+	defer ticks.Stop()
+
+	for _ = range ticks.C {
+		prevTime, curTime = curTime, time.Now()
+		dt := curTime.Sub(prevTime).Seconds()
+
+		system.Animate(dt)
+		display.Render(system)
+	}
 }

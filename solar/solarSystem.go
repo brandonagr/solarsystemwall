@@ -2,6 +2,7 @@ package solar
 
 import (
 	"container/list"
+	"math"
 
 	"github.com/golang/geo/r2"
 )
@@ -72,6 +73,10 @@ func DefaultSystem() *System {
 	system.planets[Uranus] = Planet{r2.Point{X: 106, Y: 45}, 6, 27, 0}
 	system.planets[Neptune] = Planet{r2.Point{X: 126, Y: 25}, 4, 17, 0}
 
+	system.drawables = list.New()
+
+	system.drawables.PushFront(NewLine(system))
+
 	return system
 }
 
@@ -85,6 +90,29 @@ func (solarSystem *System) LedCount() int {
 }
 
 // LedPosition return XYPosition of a given Led on the planet
-func (solarSystem *System) LedPosition(planet PlanetIndex, ledIndex int) r2.Point {
-	return solarSystem.planets[planet].position
+func (solarSystem *System) LedPosition(planetI PlanetIndex, ledIndex int) r2.Point {
+
+	planet := solarSystem.planets[planetI]
+	radiansPerLed := (2.0 * math.Pi) / float64(planet.ledCount)
+
+	ledOffset := r2.Point{X: math.Cos(float64(ledIndex)*radiansPerLed) * planet.radius * 2, Y: math.Sin(float64(ledIndex)*radiansPerLed) * planet.radius * 2}
+
+	return ledOffset.Add(planet.position)
+}
+
+// Animate moves all drawables forward in time
+func (solarSystem *System) Animate(dt float64) {
+
+	for curElement := solarSystem.drawables.Front(); curElement != nil; {
+
+		drawable := curElement.Value.(Drawable)
+
+		if !drawable.Animate(dt) {
+			nextElement := curElement.Next()
+			solarSystem.drawables.Remove(curElement)
+			curElement = nextElement
+		} else {
+			curElement = curElement.Next()
+		}
+	}
 }

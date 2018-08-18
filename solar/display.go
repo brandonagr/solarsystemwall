@@ -6,8 +6,6 @@ import (
 	"image/color"
 	"image/png"
 	"log"
-	"math"
-	"math/rand"
 	"net/http"
 	"time"
 
@@ -22,7 +20,7 @@ type Display interface {
 // XYPositionColor a color at a given position
 type XYPositionColor struct {
 	position r2.Point
-	color    RGBA
+	color    color.RGBA
 }
 
 // WebDisplay info needed to render to an image
@@ -91,8 +89,47 @@ func NewWebDisplay(solarSystem *System, width, height int) *WebDisplay {
 func (display *WebDisplay) Render(solarSystem *System) {
 	// given the solarSystem, which contains info on planets and drawable items
 
-	//
+	image := image.NewRGBA(image.Rect(0, 0, display.width, display.height))
 
+	// loop through every planet
+	for planetIndex := 0; planetIndex < PlanetCount; planetIndex++ {
+		planet := display.solarSystem.planets[planetIndex]
+		//pos := planet.position
+
+		// loop through every drawable object
+		for curElement := solarSystem.drawables.Front(); curElement != nil; curElement = curElement.Next() {
+			drawable := curElement.Value.(Drawable)
+
+			// for now want default color to be set for all leds
+			// bounding circle check to see if this should affect this planet
+			//if !drawable.Affects(pos, planet.radius) {
+			//	continue
+			//}
+
+			// loop through every led on this planet
+			for led := 0; led < planet.ledCount; led++ {
+				ledPosition := solarSystem.LedPosition(PlanetIndex(planetIndex), led)
+
+				imageX := int(ledPosition.X * display.scale.X)
+				imageY := int(ledPosition.Y * display.scale.Y)
+
+				image.SetRGBA(imageX, imageY, color.RGBA{R: 0, G: 0, B: 255, A: 255})
+
+				curColor := RGBA(image.RGBAAt(imageX, imageY))
+				curColor = drawable.ColorAt(ledPosition, RGBA(curColor))
+
+				image.SetRGBA(imageX, imageY, color.RGBA(curColor))
+			}
+		}
+	}
+
+	display.image = image
+	// for curElement := field.drawables.Front(); curElement != nil; curElement = curElement.Next() {
+
+	// 	drawable := curElement.Value.(Drawable)
+
+	// 	color = drawable.ColorAt(position, color)
+	// }
 }
 
 // LaunchWebServer Launches the webserver
@@ -130,23 +167,23 @@ func (display *WebDisplay) imageHandler(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "image/png")
 	w.Header().Set("Cache-control", "max-age=0, must-revalidate, no-store")
 
-	image := image.NewRGBA(image.Rect(0, 0, display.width, display.height))
+	// image := image.NewRGBA(image.Rect(0, 0, display.width, display.height))
 
-	for planetIndex := 0; planetIndex < PlanetCount; planetIndex++ {
-		planet := display.solarSystem.planets[planetIndex]
-		pos := planet.position
+	// for planetIndex := 0; planetIndex < PlanetCount; planetIndex++ {
+	// 	planet := display.solarSystem.planets[planetIndex]
+	// 	pos := planet.position
 
-		pos.X = pos.X * display.scale.X
-		pos.Y = pos.Y * display.scale.Y
+	// 	pos.X = pos.X * display.scale.X
+	// 	pos.Y = pos.Y * display.scale.Y
 
-		radiansPerLed := (2.0 * math.Pi) / float64(planet.ledCount)
-		for led := 0; led < planet.ledCount; led++ {
-			ledX := pos.X + math.Cos(float64(led)*radiansPerLed)*planet.radius*2
-			ledY := pos.Y + math.Sin(float64(led)*radiansPerLed)*planet.radius*2
+	// 	radiansPerLed := (2.0 * math.Pi) / float64(planet.ledCount)
+	// 	for led := 0; led < planet.ledCount; led++ {
+	// 		ledX := pos.X + math.Cos(float64(led)*radiansPerLed)*planet.radius*2
+	// 		ledY := pos.Y + math.Sin(float64(led)*radiansPerLed)*planet.radius*2
 
-			image.Set(int(ledX), int(ledY), color.RGBA{uint8(rand.Intn(256)), uint8(rand.Intn(256)), uint8(rand.Intn(256)), 255})
-		}
-	}
+	// 		image.Set(int(ledX), int(ledY), color.RGBA{uint8(rand.Intn(256)), uint8(rand.Intn(256)), uint8(rand.Intn(256)), 255})
+	// 	}
+	// }
 
 	// for dataIndex := 0; dataIndex < display.width; dataIndex++ {
 
@@ -158,7 +195,7 @@ func (display *WebDisplay) imageHandler(w http.ResponseWriter, r *http.Request) 
 	// }
 
 	encoder := &png.Encoder{CompressionLevel: png.NoCompression}
-	encoder.Encode(w, image)
+	encoder.Encode(w, display.image)
 	log.Print("Generated", r.URL, " in ", time.Since(startTime))
 }
 

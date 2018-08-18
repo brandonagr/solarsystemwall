@@ -1,6 +1,8 @@
 package solar
 
 import (
+	"image/color"
+
 	"github.com/golang/geo/r2"
 )
 
@@ -26,7 +28,7 @@ type DrawCircle struct {
 	falloff float64
 
 	//
-	color RGBA
+	color color.RGBA
 
 	// z position of ball
 	zindex ZIndex
@@ -52,7 +54,7 @@ func (circle *DrawCircle) Affects(position r2.Point, radius float64) bool {
 // ColorAt Returns the color at position blended on top of baseColor
 func (circle *DrawCircle) ColorAt(position r2.Point, baseColor RGBA) (color RGBA) {
 
-	return color
+	return baseColor
 }
 
 // ZIndex of the circle
