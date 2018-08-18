@@ -10,6 +10,8 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+
+	"github.com/golang/geo/r2"
 )
 
 // Display that can render the field
@@ -19,23 +21,23 @@ type Display interface {
 
 // XYPositionColor a color at a given position
 type XYPositionColor struct {
-	position XYPosition
+	position r2.Point
 	color    RGBA
 }
 
 // WebDisplay info needed to render to an image
 type WebDisplay struct {
-	colorSamples []XYPositionColor
+	colorSamples []r2.Point
 	width        int
 	height       int
 
 	solarSystem *System
 
 	// scale to fit all the planets
-	scale XYPosition
+	scale r2.Point
 
 	// offset applied to location of each planet
-	offset XYPosition
+	offset r2.Point
 
 	// image that is rendered to
 	image *image.RGBA
@@ -72,11 +74,11 @@ func NewWebDisplay(solarSystem *System, width, height int) *WebDisplay {
 	// scaleY := (max.Y - min.Y) / float64(height)
 
 	display := &WebDisplay{
-		colorSamples: make([]XYPositionColor, solarSystem.LedCount()),
+		colorSamples: make([]r2.Point, solarSystem.LedCount()),
 		width:        width * 5,
 		height:       height * 5,
-		scale:        XYPosition{5, 5},
-		offset:       XYPosition{0, 0},
+		scale:        r2.Point{X: 5, Y: 5},
+		offset:       r2.Point{X: 0, Y: 0},
 		solarSystem:  solarSystem,
 		image:        image.NewRGBA(image.Rect(0, 0, width*5, height*5)),
 	}
@@ -87,6 +89,9 @@ func NewWebDisplay(solarSystem *System, width, height int) *WebDisplay {
 
 // Render the field to an internal structure, that can be read out by the webserver
 func (display *WebDisplay) Render(solarSystem *System) {
+	// given the solarSystem, which contains info on planets and drawable items
+
+	//
 
 }
 

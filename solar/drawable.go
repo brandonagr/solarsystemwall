@@ -2,6 +2,8 @@ package solar
 
 import (
 	"image/color"
+
+	"github.com/golang/geo/r2"
 )
 
 // RGBA color used in game
@@ -13,9 +15,12 @@ type ZIndex int
 // Drawable methods required to draw something
 type Drawable interface {
 
+	// Affects returns if this drawable affects the circle specified, used to do bounding circle checks before doing more expensive calculations
+	Affects(position r2.Point, distance float64) bool
+
 	// Computes the color at the given position with the given baseColor
 	// If this drawable does not influence the given XYPosition then it simply returns baseColor
-	ColorAt(position XYPosition, baseColor RGBA) RGBA
+	ColorAt(position r2.Point, baseColor RGBA) RGBA
 
 	// The ZIndex of this Drawable thing
 	ZIndex() ZIndex

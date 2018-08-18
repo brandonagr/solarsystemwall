@@ -2,6 +2,8 @@ package solar
 
 import (
 	"container/list"
+
+	"github.com/golang/geo/r2"
 )
 
 // PlanetIndex used to reference array of all planets
@@ -34,7 +36,7 @@ func (planet PlanetIndex) String() string {
 type Planet struct {
 
 	// position of planet on the wall
-	position XYPosition
+	position r2.Point
 
 	// size of the planet in mm
 	radius float64
@@ -60,15 +62,15 @@ type System struct {
 func DefaultSystem() *System {
 	system := &System{}
 
-	system.planets[Sun] = Planet{XYPosition{9, 11}, 6, 27, 0}
-	system.planets[Mercury] = Planet{XYPosition{7, 25}, 4, 17, 0}
-	system.planets[Venus] = Planet{XYPosition{30, 30}, 4, 17, 0}
-	system.planets[Earth] = Planet{XYPosition{40, 10}, 4, 17, 0}
-	system.planets[Mars] = Planet{XYPosition{60, 19}, 4, 17, 0}
-	system.planets[Jupiter] = Planet{XYPosition{78, 30}, 6, 27, 0}
-	system.planets[Saturn] = Planet{XYPosition{94, 14}, 6, 27, 0}
-	system.planets[Uranus] = Planet{XYPosition{106, 45}, 6, 27, 0}
-	system.planets[Neptune] = Planet{XYPosition{126, 25}, 4, 17, 0}
+	system.planets[Sun] = Planet{r2.Point{X: 9, Y: 11}, 6, 27, 0}
+	system.planets[Mercury] = Planet{r2.Point{X: 7, Y: 25}, 4, 17, 0}
+	system.planets[Venus] = Planet{r2.Point{X: 30, Y: 30}, 4, 17, 0}
+	system.planets[Earth] = Planet{r2.Point{X: 40, Y: 10}, 4, 17, 0}
+	system.planets[Mars] = Planet{r2.Point{X: 60, Y: 19}, 4, 17, 0}
+	system.planets[Jupiter] = Planet{r2.Point{X: 78, Y: 30}, 6, 27, 0}
+	system.planets[Saturn] = Planet{r2.Point{X: 94, Y: 14}, 6, 27, 0}
+	system.planets[Uranus] = Planet{r2.Point{X: 106, Y: 45}, 6, 27, 0}
+	system.planets[Neptune] = Planet{r2.Point{X: 126, Y: 25}, 4, 17, 0}
 
 	return system
 }
@@ -80,4 +82,9 @@ func (solarSystem *System) LedCount() int {
 		count += planet.ledCount
 	}
 	return count
+}
+
+// LedPosition return XYPosition of a given Led on the planet
+func (solarSystem *System) LedPosition(planet PlanetIndex, ledIndex int) r2.Point {
+	return solarSystem.planets[planet].position
 }
