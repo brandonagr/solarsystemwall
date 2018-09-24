@@ -3,6 +3,7 @@ package solar
 import (
 	"container/list"
 	"math"
+	"image/color"
 
 	"github.com/golang/geo/r2"
 )
@@ -66,17 +67,28 @@ type System struct {
 func DefaultSystem() *System {
 	system := &System{}
 
-	system.planets[Sun] = Planet{r2.Point{X: 9, Y: 11}, 6, 27, 1.39, -1.0}
-	system.planets[Mercury] = Planet{r2.Point{X: 7, Y: 25}, 4, 17, 0.78, 1.0}
-	system.planets[Venus] = Planet{r2.Point{X: 30, Y: 30}, 4, 17, -0.26, 1.0}
-	system.planets[Earth] = Planet{r2.Point{X: 40, Y: 10}, 4, 17, 2.79, 1.0}
-	system.planets[Mars] = Planet{r2.Point{X: 60, Y: 19}, 4, 17, 1.04, 1.0}
-	system.planets[Jupiter] = Planet{r2.Point{X: 78, Y: 30}, 6, 27, -0.26, -1.0}
-	system.planets[Saturn] = Planet{r2.Point{X: 94, Y: 14}, 6, 27, -0.52, -1.0}
-	system.planets[Uranus] = Planet{r2.Point{X: 106, Y: 45}, 6, 27, 2.35, -1.0}
-	system.planets[Neptune] = Planet{r2.Point{X: 126, Y: 25}, 4, 27, 1.57, 1.0}
+	system.planets[Sun] = Planet{r2.Point{X: 9, Y: 11}, 6, 27, -1.18, -1.0}
+	system.planets[Mercury] = Planet{r2.Point{X: 7, Y: 25}, 4, 17, -0.78, 1.0}
+	system.planets[Venus] = Planet{r2.Point{X: 30, Y: 30}, 4, 17, -0.10, 1.0}
+	system.planets[Earth] = Planet{r2.Point{X: 40, Y: 10}, 4, 17, -2.79, 1.0}
+	system.planets[Mars] = Planet{r2.Point{X: 60, Y: 19}, 4, 17, -0.81, 1.0}
+	system.planets[Jupiter] = Planet{r2.Point{X: 78, Y: 30}, 6, 27, 0.26, -1.0}
+	system.planets[Saturn] = Planet{r2.Point{X: 94, Y: 14}, 6, 27, 0.92, -1.0}
+	system.planets[Uranus] = Planet{r2.Point{X: 106, Y: 45}, 6, 27, -2.78, -1.0}
+	system.planets[Neptune] = Planet{r2.Point{X: 126, Y: 25}, 4, 27, -1.00, 1.0}
 
 	system.drawables = list.New()
+
+        system.drawables.PushFront(&DrawLine{
+                startPosition:   r2.Point{X: 0, Y: 0},
+                endPosition:     r2.Point{X: 130, Y: 0},
+                traverseTime:    10.0,
+                currentPosition: r2.Point{X: 0, Y: 0},
+                lineDirection:   r2.Point{X: 1, Y: 0},
+                lineWidth:       6.0,
+                color:           color.RGBA{R: 0, G: 255, B: 255, A: 128},
+                zindex:          0,
+         })
 
 	system.drawables.PushFront(NewRotatingLine(Sun, system))
 	system.drawables.PushFront(NewRotatingLine(Mercury, system))
@@ -88,38 +100,38 @@ func DefaultSystem() *System {
 	system.drawables.PushFront(NewRotatingLine(Uranus, system))
 	system.drawables.PushFront(NewRotatingLine(Neptune, system))
 
-	// system.drawables.PushFront(&DrawLine{
-	// 	startPosition:   r2.Point{X: 0, Y: 0},
-	// 	endPosition:     r2.Point{X: 130, Y: 50},
-	// 	traverseTime:    15.0,
-	// 	currentPosition: r2.Point{X: 0, Y: 0},
-	// 	lineDirection:   r2.Point{X: .707, Y: .707},
-	// 	lineWidth:       24.0,
-	// 	color:           color.RGBA{R: 255, G: 255, B: 0, A: 128},
-	// 	zindex:          2,
-	// })
+//	 system.drawables.PushFront(&DrawLine{
+//	 	startPosition:   r2.Point{X: 0, Y: 0},
+//	 	endPosition:     r2.Point{X: 130, Y: 50},
+//	 	traverseTime:    15.0,
+//	 	currentPosition: r2.Point{X: 0, Y: 0},
+//	 	lineDirection:   r2.Point{X: .707, Y: .707},
+//	 	lineWidth:       24.0,
+//	 	color:           color.RGBA{R: 255, G: 255, B: 0, A: 128},
+//	 	zindex:          3,
+//	 })
 
-	// system.drawables.PushFront(&DrawLine{
-	// 	startPosition:   r2.Point{X: 0, Y: 0},
-	// 	endPosition:     r2.Point{X: 130, Y: 0},
-	// 	traverseTime:    10.0,
-	// 	currentPosition: r2.Point{X: 0, Y: 0},
-	// 	lineDirection:   r2.Point{X: 1, Y: 0},
-	// 	lineWidth:       18.0,
-	// 	color:           color.RGBA{R: 255, G: 0, B: 0, A: 128},
-	// 	zindex:          1,
-	// })
+//	system.drawables.PushFront(&DrawLine{
+//	 	startPosition:   r2.Point{X: 0, Y: 0},
+//	 	endPosition:     r2.Point{X: 130, Y: 0},
+//	 	traverseTime:    10.0,
+//	 	currentPosition: r2.Point{X: 0, Y: 0},
+//	 	lineDirection:   r2.Point{X: 1, Y: 0},
+//	 	lineWidth:       6.0,
+//	 	color:           color.RGBA{R: 255, G: 0, B: 255, A: 128},
+//	 	zindex:          0,
+//	 })
 
-	// system.drawables.PushFront(&DrawLine{
-	// 	startPosition:   r2.Point{X: 0, Y: 0},
-	// 	endPosition:     r2.Point{X: 0, Y: 50},
-	// 	traverseTime:    12.0,
-	// 	currentPosition: r2.Point{X: 0, Y: 0},
-	// 	lineDirection:   r2.Point{X: 0, Y: 1},
-	// 	lineWidth:       12.0,
-	// 	color:           color.RGBA{R: 0, G: 255, B: 0, A: 128},
-	// 	zindex:          1,
-	// })
+//	 system.drawables.PushFront(&DrawLine{
+//	 	startPosition:   r2.Point{X: 0, Y: 0},
+//	 	endPosition:     r2.Point{X: 0, Y: 50},
+//	 	traverseTime:    12.0,
+//	 	currentPosition: r2.Point{X: 0, Y: 0},
+//	 	lineDirection:   r2.Point{X: 0, Y: 1},
+//	 	lineWidth:       12.0,
+//	 	color:           color.RGBA{R: 0, G: 255, B: 0, A: 128},
+//	 	zindex:          4,
+//	})
 
 	return system
 }

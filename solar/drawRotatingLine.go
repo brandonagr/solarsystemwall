@@ -43,11 +43,11 @@ func NewRotatingLine(planet PlanetIndex, solarSystem *System) *DrawRotatingLine 
 	return &DrawRotatingLine{
 		startPosition: solarSystem.planets[planet].position,
 		length:        7.0,
-		traverseTime:  12.0,
+		traverseTime:  4.0,
 		currentAngle:  0.0,
 		lineWidth:     3.0,
-		color:         color.RGBA{R: 255, G: 255, B: 255, A: 255},
-		zindex:        1,
+		color:         color.RGBA{R: 255, G: 255, B: 255, A: 100},
+		zindex:        2,
 	}
 }
 

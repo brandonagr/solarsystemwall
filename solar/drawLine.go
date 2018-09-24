@@ -55,7 +55,7 @@ func NewLine(solarSystem *System) *DrawLine {
 // Affects returns bounding circle check
 func (line *DrawLine) Affects(position r2.Point, radius float64) bool {
 	distance := line.distanceToPoint(position)
-	return (distance > line.lineWidth+radius)
+	return (distance < line.lineWidth+radius)
 }
 
 // ColorAt Returns the color at position blended on top of baseColor
