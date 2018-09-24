@@ -45,7 +45,7 @@ func NewRotatingLine(planet PlanetIndex, solarSystem *System) *DrawRotatingLine 
 		length:        7.0,
 		traverseTime:  12.0,
 		currentAngle:  0.0,
-		lineWidth:     2.0,
+		lineWidth:     3.0,
 		color:         color.RGBA{R: 255, G: 255, B: 255, A: 255},
 		zindex:        1,
 	}
@@ -71,6 +71,9 @@ func (line *DrawRotatingLine) ColorAt(position r2.Point, baseColor RGBA) (color 
 	}
 	distance = distance / line.lineWidth
 	color = RGBA{line.color.R, line.color.G, line.color.B, uint8((1.0 - distance) * 255.0)}
+	if (line.currentAngle < 0.5) {
+		color = RGBA{255,0,0, uint8((1.0 - distance) * 255.0)}
+	} 
 
 	result := color.BlendWith(baseColor)
 

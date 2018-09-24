@@ -88,7 +88,7 @@ func (display *LedDisplay) Render(solarSystem *System) {
 			green := (uint32(color.G) * uint32(color.A) ) >> 8
 			blue := (uint32(color.B) * uint32(color.A) ) >> 8
 
-			ws2811.SetLed(ledIndex, uint32(green)<<16 | uint32(red)<<8 | uint32(blue))
+			ws2811.SetLed(ledIndex, uint32(gammaCorrectionLookup[green])<<16 | uint32(gammaCorrectionLookup[red])<<8 | uint32(gammaCorrectionLookup[blue]))
 			//ws2811.SetLed(ledIndex, uint32(0x000020))
 		}
 
