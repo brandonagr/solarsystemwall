@@ -10,7 +10,6 @@ import (
 
 const (
 	pin        = 18
-	count      = 16
 	brightness = 255
 )
 
@@ -27,14 +26,14 @@ var testLedDisplay Display = &LedDisplay{}
 
 // NewDisplay return new LedDisplay
 func NewDisplay(solarSystem *System) *LedDisplay {
-	err := ws2811.Init(pin, count, brightness)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	ledCount := 0
 	for planetIndex := 0; planetIndex < PlanetCount; planetIndex++ {
 		ledCount += solarSystem.planets[planetIndex].ledCount
+	}
+
+	err := ws2811.Init(pin, ledCount, brightness)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	return &LedDisplay{
@@ -52,8 +51,6 @@ func (display *LedDisplay) Dispose() {
 
 // Render the field to an internal structure, that can be read out by the webserver
 func (display *LedDisplay) Render(solarSystem *System) {
-	ws2811.Clear()
-
 	firstLedOffset := 0
 
 	// loop through every planet
@@ -87,11 +84,12 @@ func (display *LedDisplay) Render(solarSystem *System) {
 			ledIndex := led + firstLedOffset
 			color := display.renderColor[ledIndex]
 
-			red := float32(color.R) * float32(color.A) / 255.0
-			green := float32(color.G) * float32(color.A) / 255.0
-			blue := float32(color.B) * float32(color.A) / 255.0
+			red := (uint32(color.R) * uint32(color.A) ) >> 8
+			green := (uint32(color.G) * uint32(color.A) ) >> 8
+			blue := (uint32(color.B) * uint32(color.A) ) >> 8
 
-			ws2811.SetLed(ledIndex, uint32(green)<<16&uint32(red)<<8&uint32(blue))
+			ws2811.SetLed(ledIndex, uint32(green)<<16 | uint32(red)<<8 | uint32(blue))
+			//ws2811.SetLed(ledIndex, uint32(0x000020))
 		}
 
 		firstLedOffset += planet.ledCount

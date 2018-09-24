@@ -71,7 +71,7 @@ func DefaultSystem() *System {
 	system.planets[Jupiter] = Planet{r2.Point{X: 78, Y: 30}, 6, 27, 0}
 	system.planets[Saturn] = Planet{r2.Point{X: 94, Y: 14}, 6, 27, 0}
 	system.planets[Uranus] = Planet{r2.Point{X: 106, Y: 45}, 6, 27, 0}
-	system.planets[Neptune] = Planet{r2.Point{X: 126, Y: 25}, 4, 17, 0}
+	system.planets[Neptune] = Planet{r2.Point{X: 126, Y: 25}, 4, 27, 0}
 
 	system.drawables = list.New()
 

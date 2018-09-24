@@ -56,7 +56,7 @@ func (line *DrawRotatingLine) Affects(position r2.Point, radius float64) bool {
 	distance := line.startPosition.Sub(position).Norm()
 
 	//fmt.Println(distance, position, radius)
-	return (distance > line.length+radius)
+	return (distance < line.length+radius)
 }
 
 // ColorAt Returns the color at position blended on top of baseColor
