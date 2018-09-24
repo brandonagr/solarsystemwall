@@ -45,8 +45,11 @@ type Planet struct {
 	// number of leds
 	ledCount int
 
-	// verticalLedOffset the led pointing up
-	verticalLedOffset int
+	// angleOffset radians offset so that axis aligns with physical leds
+	angleOffset float64
+
+	// angleDirection -1 if led strip was installed counter clockwise
+	angleDirection float64
 }
 
 // System all objects that exist in the system, the state of the world
@@ -63,15 +66,15 @@ type System struct {
 func DefaultSystem() *System {
 	system := &System{}
 
-	system.planets[Sun] = Planet{r2.Point{X: 9, Y: 11}, 6, 27, 0}
-	system.planets[Mercury] = Planet{r2.Point{X: 7, Y: 25}, 4, 17, 0}
-	system.planets[Venus] = Planet{r2.Point{X: 30, Y: 30}, 4, 17, 0}
-	system.planets[Earth] = Planet{r2.Point{X: 40, Y: 10}, 4, 17, 0}
-	system.planets[Mars] = Planet{r2.Point{X: 60, Y: 19}, 4, 17, 0}
-	system.planets[Jupiter] = Planet{r2.Point{X: 78, Y: 30}, 6, 27, 0}
-	system.planets[Saturn] = Planet{r2.Point{X: 94, Y: 14}, 6, 27, 0}
-	system.planets[Uranus] = Planet{r2.Point{X: 106, Y: 45}, 6, 27, 0}
-	system.planets[Neptune] = Planet{r2.Point{X: 126, Y: 25}, 4, 27, 0}
+	system.planets[Sun] = Planet{r2.Point{X: 9, Y: 11}, 6, 27, 1.39, -1.0}
+	system.planets[Mercury] = Planet{r2.Point{X: 7, Y: 25}, 4, 17, 0.78, 1.0}
+	system.planets[Venus] = Planet{r2.Point{X: 30, Y: 30}, 4, 17, -0.26, 1.0}
+	system.planets[Earth] = Planet{r2.Point{X: 40, Y: 10}, 4, 17, 2.79, 1.0}
+	system.planets[Mars] = Planet{r2.Point{X: 60, Y: 19}, 4, 17, 1.04, 1.0}
+	system.planets[Jupiter] = Planet{r2.Point{X: 78, Y: 30}, 6, 27, -0.26, -1.0}
+	system.planets[Saturn] = Planet{r2.Point{X: 94, Y: 14}, 6, 27, -0.52, -1.0}
+	system.planets[Uranus] = Planet{r2.Point{X: 106, Y: 45}, 6, 27, 2.35, -1.0}
+	system.planets[Neptune] = Planet{r2.Point{X: 126, Y: 25}, 4, 27, 1.57, 1.0}
 
 	system.drawables = list.New()
 
@@ -136,7 +139,9 @@ func (solarSystem *System) LedPosition(planetI PlanetIndex, ledIndex int) r2.Poi
 	planet := solarSystem.planets[planetI]
 	radiansPerLed := (2.0 * math.Pi) / float64(planet.ledCount)
 
-	ledOffset := r2.Point{X: math.Cos(float64(ledIndex)*radiansPerLed) * planet.radius * 0.5, Y: math.Sin(float64(ledIndex)*radiansPerLed) * planet.radius * 0.5}
+	ledOffset := r2.Point{
+		X: math.Cos(float64(ledIndex)*radiansPerLed*planet.angleDirection+planet.angleOffset) * planet.radius * 0.5,
+		Y: math.Sin(float64(ledIndex)*radiansPerLed*planet.angleDirection+planet.angleOffset) * planet.radius * 0.5}
 
 	return ledOffset.Add(planet.position)
 }
