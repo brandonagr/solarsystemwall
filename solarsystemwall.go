@@ -1,6 +1,7 @@
 package main
 
 import (
+	"runtime"
 	"time"
 
 	solar "github.com/brandonagr/solarsystemwall/solar"
@@ -8,7 +9,8 @@ import (
 
 func main() {
 	system := solar.DefaultSystem()
-	display := solar.NewWebDisplay(system, 136, 91)
+	display := solar.NewDisplay(system)
+	defer display.Dispose()
 
 	runAnimationLoopForever(system, display)
 }
@@ -17,7 +19,12 @@ func runAnimationLoopForever(system *solar.System, display *solar.WebDisplay) {
 	curTime := time.Now()
 	prevTime := curTime
 
-	ticks := time.NewTicker(time.Duration(100.0) * time.Millisecond) // 10 hz
+	var ticks *time.Ticker
+	if runtime.GOOS == "windows" {
+		ticks = time.NewTicker(time.Duration(100.0) * time.Millisecond) // 10 hz
+	} else {
+		ticks = time.NewTicker(time.Duration(10.0) * time.Millisecond) // 100 hz
+	}
 	defer ticks.Stop()
 
 	for _ = range ticks.C {
