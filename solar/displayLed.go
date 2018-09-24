@@ -3,7 +3,6 @@
 package solar
 
 import (
-	"image/color"
 	"log"
 
 	"github.com/jgarff/rpi_ws281x/golang/ws2811"
@@ -21,11 +20,12 @@ type LedDisplay struct {
 	totalLedCount int
 
 	// render color for each led
-	renderColor []color.RGBA
+	renderColor []RGBA
 }
 
 var testLedDisplay Display = &LedDisplay{}
 
+// NewDisplay return new LedDisplay
 func NewDisplay(solarSystem *System) *LedDisplay {
 	err := ws2811.Init(pin, count, brightness)
 	if err != nil {
@@ -39,7 +39,7 @@ func NewDisplay(solarSystem *System) *LedDisplay {
 
 	return &LedDisplay{
 		totalLedCount: ledCount,
-		renderColor:   make([]color.RGBA, ledCount),
+		renderColor:   make([]RGBA, ledCount),
 	}
 }
 
@@ -58,11 +58,11 @@ func (display *LedDisplay) Render(solarSystem *System) {
 
 	// loop through every planet
 	for planetIndex := 0; planetIndex < PlanetCount; planetIndex++ {
-		planet := display.solarSystem.planets[planetIndex]
+		planet := solarSystem.planets[planetIndex]
 
 		for led := 0; led < planet.ledCount; led++ {
 			ledIndex := led + firstLedOffset
-			display.renderColor[ledIndex] = color.RGBA(0, 0, 0, 255)
+			display.renderColor[ledIndex] = RGBA{R: 0, G: 0, B: 0, A: 255}
 		}
 
 		// loop through every drawable object
@@ -70,19 +70,14 @@ func (display *LedDisplay) Render(solarSystem *System) {
 			drawable := curElement.Value.(Drawable)
 
 			// bounding circle check to see if this should affect this planet
-			if !drawable.Affects(pos, planet.radius) {
+			if !drawable.Affects(planet.position, planet.radius) {
 				continue
 			}
 
 			// loop through every led on this planet
 			for led := 0; led < planet.ledCount; led++ {
 				ledIndex := led + firstLedOffset
-
 				ledPosition := solarSystem.LedPosition(PlanetIndex(planetIndex), led)
-
-				imageX := int(ledPosition.X * display.scale.X)
-				imageY := int(ledPosition.Y * display.scale.Y)
-
 				display.renderColor[ledIndex] = drawable.ColorAt(ledPosition, display.renderColor[ledIndex])
 			}
 		}
