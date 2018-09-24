@@ -3,16 +3,15 @@
 package solar
 
 import (
-	"time"
-	"os"
-	"fmt"
+	"image/color"
+	"log"
 
 	"github.com/jgarff/rpi_ws281x/golang/ws2811"
 )
 
 const (
-	pin = 18
-	count = 16
+	pin        = 18
+	count      = 16
 	brightness = 255
 )
 
@@ -38,22 +37,22 @@ func NewDisplay(solarSystem *System) *LedDisplay {
 		ledCount += solarSystem.planets[planetIndex].ledCount
 	}
 
-	return &LedDisplay {
+	return &LedDisplay{
 		totalLedCount: ledCount,
-		renderColor: make([]color.RGBA, ledCount)
-	}	
+		renderColor:   make([]color.RGBA, ledCount),
+	}
 }
 
 // Dispose cleanup any resources
 func (display *LedDisplay) Dispose() {
-	ws2811.Clear();
-	ws2811.Render();
+	ws2811.Clear()
+	ws2811.Render()
 	ws2811.Fini()
 }
 
 // Render the field to an internal structure, that can be read out by the webserver
 func (display *LedDisplay) Render(solarSystem *System) {
-	ws2811.Clear();
+	ws2811.Clear()
 
 	firstLedOffset := 0
 
@@ -61,9 +60,9 @@ func (display *LedDisplay) Render(solarSystem *System) {
 	for planetIndex := 0; planetIndex < PlanetCount; planetIndex++ {
 		planet := display.solarSystem.planets[planetIndex]
 
-		for(led := 0; led < planet.ledCount; led++) {
+		for led := 0; led < planet.ledCount; led++ {
 			ledIndex := led + firstLedOffset
-			display.renderColor[ledIndex] = color.RGBA(0,0,0,255)
+			display.renderColor[ledIndex] = color.RGBA(0, 0, 0, 255)
 		}
 
 		// loop through every drawable object
@@ -76,7 +75,7 @@ func (display *LedDisplay) Render(solarSystem *System) {
 			}
 
 			// loop through every led on this planet
-			for(led := 0; led < planet.ledCount; led++) {
+			for led := 0; led < planet.ledCount; led++ {
 				ledIndex := led + firstLedOffset
 
 				ledPosition := solarSystem.LedPosition(PlanetIndex(planetIndex), led)
@@ -89,21 +88,21 @@ func (display *LedDisplay) Render(solarSystem *System) {
 		}
 
 		// set each led color
-		for(led := 0; led < planet.ledCount; led++) {
-			ledIndex := led + firstLedOffset			
-			color := display.renderColor[ledIndex];
+		for led := 0; led < planet.ledCount; led++ {
+			ledIndex := led + firstLedOffset
+			color := display.renderColor[ledIndex]
 
 			red := float32(color.R) * float32(color.A) / 255.0
 			green := float32(color.G) * float32(color.A) / 255.0
 			blue := float32(color.B) * float32(color.A) / 255.0
 
-			ws2811.SetLed(ledIndex, uint32(green) << 16 & uint32(red) << 8 & uint32(blue))
+			ws2811.SetLed(ledIndex, uint32(green)<<16&uint32(red)<<8&uint32(blue))
 		}
 
 		firstLedOffset += planet.ledCount
 	}
 
-	ws2811.Render();
+	ws2811.Render()
 }
 
 // based on a pull request found at http://forums.adafruit.com/viewtopic.php?f=47&t=26591
